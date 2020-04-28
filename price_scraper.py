@@ -35,7 +35,7 @@ class scrapit():
 
     server.login('harahismast@gmail.com', 'harshzxcvbnmlpoiuytrewqaz')
     subject = 'price fell down'
-    body = 'https://www.amazon.in/Her-Pierre-Alex-Jeanty/dp/0997426586/ref=sr_1_2?keywords=her&qid=1575040989&sr=8-2'
+    body = self.query
     msg = f"Subject: {subject}\n\n{body}"
 
     server.sendmail(
