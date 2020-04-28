@@ -28,23 +28,23 @@ class scrapit():
             print('no mail')
 
     def send_mail():
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
 
-    server.login('harahismast@gmail.com', 'harshzxcvbnmlpoiuytrewqaz')
-    subject = 'price fell down'
-    body = self.query
-    msg = f"Subject: {subject}\n\n{body}"
+        server.login('harahismast@gmail.com', 'harshzxcvbnmlpoiuytrewqaz')
+        subject = 'price fell down'
+        body = self.query
+        msg = "Subject: "+subject+"\n "+body
 
-    server.sendmail(
-        'harahismast@gmail.com',
-        'ht50159@gmail.com',
-        msg
-    )
-    print('HEY EMAIL HAS BEEN SENT')
-    server.quit()
+        server.sendmail(
+            'harahismast@gmail.com',
+            'ht50159@gmail.com',
+            msg
+        )
+        print('HEY EMAIL HAS BEEN SENT')
+        server.quit()
             
 
 
