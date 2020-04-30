@@ -57,7 +57,7 @@ class scrapit():
             'brand_name':brand_name,
             'product_name': product_name
         }
-        product_body = 'price : '+str(price)+'\nbrand_name : '+brand_name+'\nproduct_name : '+ product_name
+        product_body = 'price : '+str(item_price)+'\nbrand_name : '+brand_name+'\nproduct_name : '+ product_name
         self.check_prize(item_price, product_body)
     
     def search_for_amazone(self):
