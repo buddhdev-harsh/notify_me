@@ -3,13 +3,15 @@ from bs4 import BeautifulSoup
 import smtplib
 import json
 import re
+
 ##############################################
 
 class scrapit():
     
-    def __init__(self, query, price):
+    def __init__(self, query, price ,email):
         self.query = query
         self.price = price
+        self.email = email
 
     def send_mail(self,product_body):
         server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -21,14 +23,12 @@ class scrapit():
         subject = 'price fell down\n'
         body = self.query
 
-        # product_body = 'price'+product_dict['price']+'brand_name'+product_dict['brand_name']+'product_name'+ product_dict['product_name']
 
         msg = "Subject: "+subject+"\n "+body+"\n"+product_body
-        print(msg)
 
         server.sendmail(
             'harahismast@gmail.com',
-            'ht50159@gmail.com',
+            self.email,
             msg
         )
         print('HEY EMAIL HAS BEEN SENT')
@@ -43,10 +43,10 @@ class scrapit():
         soup = BeautifulSoup(req.content , 'html.parser')
         
         script_contents = soup.find_all('script')
+    
         product_script = script_contents[1]
-        product_script = product_script.text.replace(" ","").replace("\n","").replace("\t","")
-
-        product_json = json.loads(product_script)
+        json_product = product_script.string.replace(" ","").replace("\n","").replace("\t","")
+        product_json = json.loads(json_product)
 
         price = int(product_json['offers']['price'])
         brand_name = product_json['brand']['name']
@@ -61,20 +61,19 @@ class scrapit():
         }
 
         product_body = 'price : '+str(price)+'\nbrand_name : '+brand_name+'\nproduct_name : '+ product_name
-        print(product_body)
-        print("\n\n",type(price)," ",type(self.price) ,"\n\n")
+        
         if(price < self.price):
             self.send_mail(product_body)
         else:
-            print('no mail')
+            print('no price updates')
 
             
 
 
 
-url = input('enter the url of product you want to track price for:')
-price = int(input('enter the price you want your product to be notify when it euqal to or less than it'))
+url = input('enter the url of product you want to track price for: ')
+price = int(input('enter the price you want your product to be notify when it euqal to or less than it: '))
+email = input('enter your email: ')
 
-
-res = scrapit(url,price)
+res = scrapit(url, price, email)
 res.query_search_scrap()
