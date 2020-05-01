@@ -8,14 +8,11 @@ from tld import get_tld
 ##############################################
 
 class scrapit():
-    
-    headers = {
-    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}
-
-    def __init__(self, query, price ,email):
+    def __init__(self, query, price ,email, soup):
         self.query = query
         self.price = price
         self.email = email
+        self.soup = soup
 
     def send_mail(self,product_body):
         server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -25,23 +22,20 @@ class scrapit():
 
         server.login('harahismast@gmail.com', 'harshzxcvbnmlpoiuytrewqaz')
         subject = 'price fell down\n'
-        body = self.query
         
-        msg = "Subject: "+subject+"\n "+body+"\n"+product_body
+        msg = "Subject: "+subject+"\n "+self.query+"\n"+product_body
 
         server.sendmail(
             'harahismast@gmail.com',
             self.email,
-            msg
+            msg.encode('utf-8')
         )
         print('HEY EMAIL HAS BEEN SENT')
         server.quit()
     
     def search_for_myntra(self):
         
-        req = requests.get(self.query,headers = self.headers)
-        soup = BeautifulSoup(req.content , 'html.parser')
-        script_contents = soup.find_all('script')
+        script_contents = self.soup.find_all('script')
     
         product_script = script_contents[1]
         json_product = product_script.string.replace(" ","").replace("\n","").replace("\t","")
@@ -61,22 +55,30 @@ class scrapit():
         self.check_prize(item_price, product_body)
     
     def search_for_amazone(self):
-        req = requests.get(url,headers = self.headers)
-        soup = BeautifulSoup(req.content , 'html.parser')
-        
-        product_div = soup.find('div',{'id':'titleSection'}).h1.get_text()
+        product_div = self.soup.find('div',{'id':'titleSection'}).h1.get_text()
         product_name = product_div.strip()
         
-        find_div = soup.find('div',{'id':'price'}) 
+        find_div = self.soup.find('div',{'id':'price'}) 
         tr = find_div.table.find_all('tr')[1]
         td = tr.find_all('td')[1]
-        span_block = td.find('span',{'id':'priceblock_ourprice'})
+        span_block = td.find('span')
         price_in_string = str(span_block.encode('utf-8'))
-        slice_price = price_in_string[116:-11]
-        item_price = int(slice_price)
-        product_body = 'price : '+str(item_price)+'\nproduct_name : '+ product_name
+        slice_price = price_in_string[116:-11].split(',')
+        s = [str(i) for i in slice_price]
+        item_price = int("".join(s))
+        product_body = 'price : '+str(item_price)+'\nproduct_name : '+ str(product_name)
         self.check_prize(item_price, product_body)
 
+    def search_for_flipkart(self):
+        product_name = self.soup.find('h1',{'class':'_9E25nV'}).get_text()
+        product_div = self.soup.find('div',{'class':'_1uv9Cb'}).find('div').get_text()
+        product_price = str(product_div.encode('utf-8'))
+        product_price = product_price[14:-1].split(',')
+        s = [str(i) for i in product_price]
+        item_price = int("".join(s))
+        product_body = 'price : '+str(item_price)+'\nproduct_name : '+ str(product_name)
+        self.check_prize(item_price, product_body)
+    
     def check_prize(self,item_price,product_body):
         if(item_price < self.price):
             self.send_mail(product_body)
@@ -92,9 +94,19 @@ email = input('enter your email: ')
 url_ext = get_tld(url, as_object = True)
 domain = url_ext.domain
 
-res = scrapit(url, price, email)
+
+headers = {
+    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}
+req = requests.get(url,headers = headers)
+soup = BeautifulSoup(req.content , 'html.parser')
+
+res = scrapit(url, price, email,soup)
 
 if domain == 'myntra':
     res.search_for_myntra()
 elif domain == 'amazon':
     res.search_for_amazone()
+elif domain == 'flipkart':
+    res.search_for_flipkart()
+else:
+    print('not in our range sir')
