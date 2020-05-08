@@ -20,13 +20,13 @@ class scrapit():
         server.starttls()
         server.ehlo()
 
-        server.login('harahismast@gmail.com', 'harshzxcvbnmlpoiuytrewqaz')
+        server.login('your email', 'your emails password')
         subject = 'price fell down\n'
         
         msg = "Subject: "+subject+"\n "+self.query+"\n"+product_body
 
         server.sendmail(
-            'harahismast@gmail.com',
+            'your email',
             self.email,
             msg.encode('utf-8')
         )
